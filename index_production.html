@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <!--
+    ================================================================
+    VANESSA — Design & Desenvolvimento Web  ·  v6
+    ================================================================
+    Globo  : porta exata do aether-globe-hero.html
+             (anéis, 600 partículas, core, atmosfera, GSAP entry)
+    Laser  : letra a letra, flash + trace, 2 linhas sequenciais
+    Layout : desktop split / mobile coluna única
+    Design : Repetição · Agrupamento · Contraste · Alinhamento
+    ================================================================
+  -->
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vanessa — Design & Desenvolvimento Web</title>
+  <link rel="stylesheet" href="styles.css" />
+
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@300;400;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet"/>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  
+</head>
+
+<body>
+
+  <!-- Intro Video Preloader -->
+  <div id="intro-video-wrapper">
+    <video id="intro-video" src="video.mp4" autoplay muted playsinline></video>
+    <button id="skip-video" aria-label="Pular vídeo">PULAR</button>
+  </div>
+
+  <!-- Cursores -->
+  <div class="c-dot"  id="cdot"  aria-hidden="true"></div>
+  <div class="c-ring" id="cring" aria-hidden="true"></div>
+
+  <!-- Canvas Three.js + overlays (fixos, z=0/1) -->
+  <canvas id="globe-canvas" aria-hidden="true"></canvas>
+  <div class="vignette"  aria-hidden="true"></div>
+  <div class="scanlines" aria-hidden="true"></div>
+  <div class="global-noise" aria-hidden="true"></div>
+
+  <!-- HUD coordenadas -->
+  <div id="hud" aria-hidden="true">LAT 08°12'S<br>LON 34°52'W<br>RECIFE · BR</div>
+
+  <!-- Color switcher -->
+  <div id="csw" aria-label="Cor do tema">
+    <span class="sw-lbl">COR</span>
+    <button class="sw-d sw-c on" data-color="cyan"  title="Ciano"      aria-label="Ciano"></button>
+    <button class="sw-d sw-g"    data-color="green" title="Verde Neon" aria-label="Verde Neon"></button>
+    <button class="sw-d sw-p"    data-color="pink"  title="Rosa Neon"  aria-label="Rosa Neon"></button>
+    <button class="sw-d sw-r"    data-color="pride" title="Pride"      aria-label="Pride Rainbow"></button>
+  </div>
+
+  <!-- Overlay menu mobile -->
+  <div id="movl" role="presentation"></div>
+
+  <!-- Menu mobile -->
+  <nav id="mmenu" aria-label="Menu mobile">
+    <button class="mcls" id="mclose" aria-label="Fechar">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <a class="mlnk" href="#servicos"  data-i18n="nav-srv">Serviços</a>
+    <a class="mlnk" href="#sobre"     data-i18n="nav-abt">Sobre</a>
+    <a class="mlnk" href="#projetos"  data-i18n="nav-wrk">Projetos</a>
+    <a class="mlnk" href="#processo"  data-i18n="nav-prc">Processo</a>
+    <a class="mlnk" href="#contato"   data-i18n="nav-ctc">Contato</a>
+    <div class="mact">
+      <button class="tog" id="ttog-m">
+        <svg id="ticon-m" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <span id="tlbl-m">Dark</span>
+      </button>
+      <button class="tog" id="ltog-m">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <span id="llbl-m">EN</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ============================================================
+       SCROLL ROOT (z=2, acima do canvas)
+       ============================================================ -->
+  <div id="sroot">
+
+    <!-- NAVBAR -->
+    <nav id="nav">
+      <div class="ni">
+        <a class="logo" href="#hero">VANESSA<span class="ld"></span></a>
+        <ul class="nl">
+          <li><a href="#servicos"  data-i18n="nav-srv">Serviços</a></li>
+          <li><a href="#sobre"     data-i18n="nav-abt">Sobre</a></li>
+          <li><a href="#projetos"  data-i18n="nav-wrk">Projetos</a></li>
+          <li><a href="#processo"  data-i18n="nav-prc">Processo</a></li>
+        </ul>
+        <div class="na">
+          <button class="tog" id="ttog-d">
+            <svg id="ticon-d" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            <span id="tlbl-d">Dark</span>
+          </button>
+          <button class="tog" id="ltog-d">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span id="llbl-d">EN</span>
+          </button>
+          <a class="btn-nav" href="#contato" data-i18n="nav-cta">Iniciar Projeto</a>
+          <button class="ham" id="hambtn" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ============================================================
+         HERO
+         ============================================================ -->
+    <section id="hero">
+
+      <!-- Coluna esquerda: globo (visual) + título laser + botões -->
+      <div class="h-left">
+
+        <!-- Espaço visual do globo no mobile -->
+        <div class="globe-space" aria-hidden="true"></div>
+
+        <!-- Tag label -->
+        <p class="h-tag" id="h-tag" data-i18n="hero-tag">Design & Desenvolvimento Web</p>
+
+        <!-- Bloco laser (2 linhas sequenciais) -->
+        <div id="laser-block" aria-label="Projetamos o Imaterial">
+
+          <!-- Linha 1: PROJETAMOS -->
+          <div class="lhl-wrap" style="text-align:center">
+            <div id="lhl1" class="lhl">
+              <div id="lb1" class="lbeam" aria-hidden="true"></div>
+              <div id="lt1" class="ltrace" aria-hidden="true"></div>
+            </div>
+          </div>
+
+          <!-- Linha 2: O IMATERIAL -->
+          <div class="lhl-wrap" style="text-align:center">
+            <div id="lhl2" class="lhl">
+              <div id="lb2" class="lbeam" aria-hidden="true"></div>
+              <div id="lt2" class="ltrace" aria-hidden="true"></div>
+            </div>
+          </div>
+
+        </div><!-- /laser-block -->
+
+        <!-- Botões sempre visíveis após reveal -->
+        <div class="h-btns" id="h-btns">
+          <a class="btn-p" href="#projetos" data-i18n="hero-cta1">Ver Projetos</a>
+          <a class="btn-s" href="#contato"  data-i18n="hero-cta2">Falar Comigo</a>
+        </div>
+
+      </div><!-- /h-left -->
+
+      <!-- Coluna direita: copy portfolio da Vanessa -->
+      <div class="h-right">
+
+        <p class="h-cat hr-item" data-i18n="copy-cat">Portfólio · 2024</p>
+
+        <h2 class="h-hl hr-item" data-i18n="copy-hl">Do esboço ao ar.<br><em>Uma pessoa.</em><br>Projeto completo.</h2>
+
+        <p class="h-body hr-item" data-i18n="copy-body">
+          Sites modernos, responsivos e rápidos — construídos por uma designer-desenvolvedora que entrega o projeto inteiro, do escopo visual ao código em produção.
+        </p>
+
+        <ul class="h-feats hr-item">
+          <li><strong data-i18n="f1a">Design + Código</strong>&nbsp;<span data-i18n="f1b">no mesmo projeto, sem handoff</span></li>
+          <li><strong data-i18n="f2a">Responsivo por padrão</strong>&nbsp;<span data-i18n="f2b">mobile, tablet e desktop</span></li>
+          <li><strong data-i18n="f3a">Escopo → Entrega</strong>&nbsp;<span data-i18n="f3b">do briefing ao lançamento</span></li>
+          <li><strong data-i18n="f4a">Tecnologia real</strong>&nbsp;<span data-i18n="f4b">React, Next.js, Figma, Webflow</span></li>
+        </ul>
+
+        <p class="h-note hr-item">
+          <span data-i18n="note1">Sem a burocracia de agências. Sem a qualidade duvidosa de genéricos.</span><br>
+          <span class="accent-note" data-i18n="note2">Atenção dedicada. Resultado que impressiona.</span>
+        </p>
+
+      </div><!-- /h-right -->
+
+      <!-- Scroll hint — Princípio 4: ALINHAMENTO (centralizado) -->
+      <div class="scroll-hint" id="scroll-hint">
+        <div class="sline"></div>
+        <span class="slbl" data-i18n="scroll-hint">Role</span>
+      </div>
+
+    </section><!-- /hero -->
+
+    <!-- ============================================================
+         STATS — Princípio 3: CONTRASTE números vs labels
+         ============================================================ -->
+    <div class="stats-strip section" style="padding:0;border-radius:0">
+      <div class="stat-item">
+        <p class="stat-n">12<span>+</span></p>
+        <p class="stat-l" data-i18n="stat1">Projetos Entregues</p>
+      </div>
+      <div class="stat-item">
+        <p class="stat-n">3<span>+</span></p>
+        <p class="stat-l" data-i18n="stat2">Anos de Experiência</p>
+      </div>
+      <div class="stat-item">
+        <p class="stat-n">100<span>%</span></p>
+        <p class="stat-l" data-i18n="stat3">Responsivo</p>
+      </div>
+      <div class="stat-item">
+        <p class="stat-n">∞</p>
+        <p class="stat-l" data-i18n="stat4">Atenção ao Detalhe</p>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         SERVIÇOS — 4 Princípios aplicados na grade de cards
+         ============================================================ -->
+    <section id="servicos" class="section">
+      <div class="section-inner">
+        <header class="section-header">
+          <p class="section-cat" data-i18n="srv-cat">Serviços</p>
+          <h2 class="section-title" data-i18n="srv-title">O que entrego</h2>
+        </header>
+        <div class="cards-grid">
+          <article class="card">
+            <p class="card-num">01</p>
+            <h3 class="card-title" data-i18n="c1t">Design de Interface</h3>
+            <p class="card-body"  data-i18n="c1b">Wireframes, protótipos interativos no Figma e sistemas de design completos que guiam o desenvolvimento.</p>
+            <div class="card-tags">
+              <span class="ctag">Figma</span>
+              <span class="ctag">UI/UX</span>
+              <span class="ctag">Design System</span>
+            </div>
+          </article>
+          <article class="card">
+            <p class="card-num">02</p>
+            <h3 class="card-title" data-i18n="c2t">Desenvolvimento Web</h3>
+            <p class="card-body"  data-i18n="c2b">Código limpo, performático e acessível — do HTML semântico ao React com animações e interações sofisticadas.</p>
+            <div class="card-tags">
+              <span class="ctag">React</span>
+              <span class="ctag">Next.js</span>
+              <span class="ctag">Webflow</span>
+            </div>
+          </article>
+          <article class="card">
+            <p class="card-num">03</p>
+            <h3 class="card-title" data-i18n="c3t">Projeto Completo</h3>
+            <p class="card-body"  data-i18n="c3b">Do briefing ao lançamento: escopo, design, desenvolvimento e gestão em uma única mão. Sem ruído, sem intermediários.</p>
+            <div class="card-tags">
+              <span class="ctag">Escopo</span>
+              <span class="ctag">Gestão</span>
+              <span class="ctag">Entrega</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Placeholders -->
+    <!-- ============================================================
+         SOBRE — Autoridade, Vanessa Lima, VanessenceWeb London
+         ============================================================ -->
+    <section id="sobre" class="section">
+      <div class="section-inner" style="display:grid; gap:3rem; grid-template-columns:1fr; max-width:1100px; margin:0 auto; align-items:center;">
+        
+        <!-- Left: Animated Photo Container (Index_1 style) -->
+        <div style="position:relative; width:100%; aspect-ratio:3/4; max-width:400px; margin:0 auto;">
+          <div class="hero-img-strip" style="width:100%; height:100%;">
+            <img src="https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&q=80&w=800" alt="Vanessa Lima Designer/Dev"/>
+            <div class="hero-img-overlay"></div>
+            <div class="hero-img-border"></div>
+          </div>
+          <!-- Decorative HUD elements matching theme -->
+          <div style="position:absolute; top:-10px; left:-10px; width:20px; height:20px; border-top:1px solid var(--accent); border-left:1px solid var(--accent);"></div>
+          <div style="position:absolute; bottom:-10px; right:-10px; width:20px; height:20px; border-bottom:1px solid var(--accent); border-right:1px solid var(--accent);"></div>
+        </div>
+
+        <!-- Right: Text content & Authority -->
+        <div class="sobre-text">
+          <p class="section-cat">Autoridade & Credibilidade</p>
+          <h2 class="section-title">Vanessa Lima</h2>
+          <p style="font-size: 1.1rem; color: var(--hi); margin-bottom: 1.5rem; line-height: 1.6;">
+            Desenvolvedora de <strong>sites modernos</strong> atuando como freelancer, fundadora da <span style="color:var(--accent);font-weight:700;">VanessenceWeb</span> corporação oficial no Reino Unido.
+          </p>
+          <p style="font-size: .95rem; color: var(--mid); margin-bottom: 2rem; line-height: 1.6;">
+            Com base legal em Londres (UK) e foco em impacto visual global, uno design *premium* e desenvolvimento nativo para entregar mais que telas bonitas — construo máquinas de conversão ultra velozes que comunicam a autoridade soberana do seu negócio no mundo digital.
+          </p>
+
+          <!-- B2B Validation Badge (UK Gov) -->
+          <a href="https://find-and-update.company-information.service.gov.uk/company/16679666" target="_blank" style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.02); border:1px solid var(--bdr); padding:12px 16px; border-radius:8px; margin-bottom:2rem; text-decoration:none; transition:border-color .3s, background .3s;" onmouseover="this.style.borderColor='var(--accent)'; this.style.background='rgba(var(--accent-rgb),0.05)'" onmouseout="this.style.borderColor='var(--bdr)'; this.style.background='rgba(255,255,255,0.02)'">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--hi)" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+            <div>
+              <div style="font-size:.85rem; color:var(--hi); font-family:var(--ffd); font-weight:700;">VanessenceWeb LLC / LTD</div>
+              <div style="font-size:.7rem; color:var(--lo); text-transform:uppercase; letter-spacing:.1em; margin-top:2px;">Registry: UK Companies House (Gov.UK)</div>
+            </div>
+          </a>
+          
+          <!-- Local Ads Trust Widget (Google) -->
+          <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-2); border-left:2px solid #FBBC05; padding:16px 20px; border-radius:4px;">
+            <div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.744 12.276c0-.826-.074-1.62-.213-2.385H12.25v4.512h6.444c-.278 1.46-.1 2.825-1.042 3.86l3.35 2.597c1.96-1.808 3.09-4.473 3.09-7.534z"/><path fill="#34A853" d="M12.25 24c3.24 0 5.955-1.074 7.94-2.905l-3.35-2.597c-1.075.72-2.45 1.144-4.59 1.144-3.53 0-6.525-2.385-7.587-5.592H1.196v2.68C3.18 20.675 7.37 24 12.25 24z"/><path fill="#FBBC05" d="M4.663 14.05C4.394 13.25 4.24 12.4 4.24 11.52c0-.88.154-1.73.423-2.53V6.31H1.196C.435 7.82 0 9.61 0 11.52c0 1.91.435 3.7 1.196 5.21l3.467-2.68z"/><path fill="#EA4335" d="M12.25 4.644c1.76 0 3.342.605 4.586 1.79l3.435-3.435C18.2045 1.074 15.488 0 12.25 0 7.37 0 3.18 3.325 1.196 7.21l3.467 2.68C5.725 7.03 8.72 4.644 12.25 4.644z"/></svg>
+                <div style="font-family:var(--ffd); font-size:1.1rem; color:var(--hi); font-weight:700;">5.0</div>
+                <div style="display:flex; gap:2px; margin-top:-2px;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="#FBBC05"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="#FBBC05"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="#FBBC05"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                </div>
+              </div>
+              <div style="font-size:.7rem; color:var(--lo); margin-top:2px;">Business Profile Localizado (BR)</div>
+            </div>
+            <a href="#contato" class="btn-s" style="padding: 8px 16px;">Iniciar Projeto</a>
+          </div>
+
+        </div>
+      </div>
+      
+      
+    </section>
+    <!-- ============================================================
+         PROJETOS
+         ============================================================ -->
+    <section id="projetos" class="section">
+      <div class="section-inner">
+        <header class="section-header">
+          <p class="section-cat">Portfólio</p>
+          <h2 class="section-title">Trabalhos Recentes</h2>
+        </header>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(330px, 1fr)); gap:2.5rem; perspective: 1000px;">
+          
+          <!-- Projeto 1 (Index_1 UI Style) -->
+          <div class="srv-card" data-tilt onmouseover="this.style.transform='translateY(-10px) rotateX(2deg)'" onmouseout="this.style.transform='translateY(0) rotateX(0)'" style="transition: transform 0.4s ease-out;">
+            <div class="srv-card-inner">
+              <div class="srv-img">
+                <!-- Imagem ilustrativa que pode ser substituida pelo mockup final do portfolio -->
+                <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800" alt="Plataforma Fintech"/>
+                <div class="srv-img-overlay"></div>
+                <div class="srv-sheen"></div>
+              </div>
+              <div class="srv-tag">REACT | FIGMA</div>
+              <div class="srv-content">
+                <div class="srv-service-title">P/01 Fintech Dash</div>
+                <div class="srv-service-desc">Dashboard financeiro robusto. Foco em interfaces ricas em dados, interações state-driven e painéis modulares com suporte unificado a dark/light modes.</div>
+              </div>
+              <div class="srv-card-glow"></div>
+            </div>
+          </div>
+
+          <!-- Projeto 2 (Index_1 UI Style) -->
+          <div class="srv-card" data-tilt onmouseover="this.style.transform='translateY(-10px) rotateX(2deg)'" onmouseout="this.style.transform='translateY(0) rotateX(0)'" style="transition: transform 0.4s ease-out;">
+            <div class="srv-card-inner">
+              <div class="srv-img">
+                <img src="https://images.unsplash.com/photo-1600132806370-bf17e65e942f?auto=format&fit=crop&q=80&w=800" alt="E-commerce Fashion"/>
+                <div class="srv-img-overlay"></div>
+                <div class="srv-sheen"></div>
+              </div>
+              <div class="srv-tag">NEXT.JS | STRIPE</div>
+              <div class="srv-content">
+                <div class="srv-service-title">P/02 E-commerce</div>
+                <div class="srv-service-desc">Loja virtual de estética vanguardista e alta precisão. Checkout otimizado com microsserviços e front-end projetado para alavancar métricas de LTV.</div>
+              </div>
+              <div class="srv-card-glow"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         PROCESSO
+         ============================================================ -->
+    <section id="processo" class="section">
+      <div class="section-inner">
+        <header class="section-header" style="text-align:center;">
+          <p class="section-cat">Metodologia</p>
+          <h2 class="section-title" style="margin-left:auto; margin-right:auto;">Processo de Trabalho</h2>
+          <p style="color:var(--mid); font-size:.9rem; max-width:500px; margin:1rem auto 0 auto;">Como opero de forma independente para transformar sua ideia abstrata em um produto digital.</p>
+        </header>
+
+        <div class="proc-container" style="max-width:800px; margin:4rem auto 0; position:relative;">
+          <!-- Linha central vertical animada -->
+          <div class="proc-line"></div>
+          <div class="proc-line-fill"></div>
+          
+          <div style="display:flex; flex-direction:column; gap:3rem; position:relative; z-index:1;">
+            
+            <div class="proc-step">
+              <div class="proc-node"><span>01</span></div>
+              <div style="padding-top:8px;">
+                <h3 class="proc-title">O Escopo (Briefing)</h3>
+                <p style="font-size:.95rem; color:var(--mid); line-height:1.6;">Alinhamento detalhado sobre os objetivos da marca, o público-alvo e estruturação de quais páginas seu negócio precisa.</p>
+              </div>
+            </div>
+
+            <div class="proc-step">
+              <div class="proc-node"><span>02</span></div>
+              <div style="padding-top:8px;">
+                <h3 class="proc-title">O Design (UX/UI Figma)</h3>
+                <p style="font-size:.95rem; color:var(--mid); line-height:1.6;">Criação de um sistema visual, tipografia avançada e wireframe de navegação testável antes de tocar no código.</p>
+              </div>
+            </div>
+
+            <div class="proc-step">
+              <div class="proc-node"><span>03</span></div>
+              <div style="padding-top:8px;">
+                <h3 class="proc-title">O Desenvolvimento (Código)</h3>
+                <p style="font-size:.95rem; color:var(--mid); line-height:1.6;">Engenharia moderna (CSS puro, JS, Framer/GSAP) focada em uma performance excepcional, animações fluidas e otimização responsiva.</p>
+              </div>
+            </div>
+
+            <div class="proc-step">
+              <div class="proc-node"><span>04</span></div>
+              <div style="padding-top:8px;">
+                <h3 class="proc-title">A Entrega (Lançamento)</h3>
+                <p style="font-size:.95rem; color:var(--mid); line-height:1.6;">Homologação final e implantação ao vivo no seu domínio e servidor próprio oficial.</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         FORMAÇÃO / CERTIFICADOS
+         Princípio 1: REPETIÇÃO — cada badge-card tem estrutura idêntica
+         Princípio 2: AGRUPAMENTO — sidebar agrupa número+info; main agrupa badges
+         Princípio 3: CONTRASTE — "61" enorme vs label pequena vs grid fina
+         Princípio 4: ALINHAMENTO — tudo ancorado em grid de 2 colunas
+         ============================================================ -->
+
+    <!-- Section padrão sem scroll hijacking -->
+    <div id="certs-driver">
+      <div id="certs-sticky">
+
+        <!-- ── Sidebar esquerda ───────────────────────────── -->
+        <aside class="certs-sidebar" id="certs-sidebar">
+
+          <div>
+            <p class="certs-eyebrow">Formação</p>
+            <div class="certs-counter">
+              <span class="counter-num" id="counter-num">61</span>
+              <span class="counter-suffix">+</span>
+            </div>
+            <p class="certs-label">certificados<br><em>& badges</em></p>
+            <p class="certs-sub">Estudo contínuo desde 2025.<br>UNICAP · DIO · Origamid · Udemy · Sebrae.</p>
+          </div>
+
+          <!-- Filtros duplos: Plataforma e Habilidade -->
+          <div style="margin-top:2rem;">
+            <p class="certs-list-title" style="margin-top:0">Plataforma</p>
+            <div class="filter-list" id="plat-list">
+              <button class="filter-pill active" data-filter="all">Todas</button>
+              <button class="filter-pill" data-filter="DIO">DIO</button>
+              <button class="filter-pill" data-filter="Origamid">Origamid</button>
+              <button class="filter-pill" data-filter="Udemy">Udemy</button>
+              <button class="filter-pill" data-filter="UNICAP">UNICAP</button>
+              <button class="filter-pill" data-filter="Sebrae">Sebrae</button>
+            </div>
+
+            <p class="certs-list-title" style="margin-top:1.5rem">Habilidade</p>
+            <div class="filter-list" id="skill-list">
+              <button class="filter-pill active" data-filter="all">Todas</button>
+              <button class="filter-pill" data-filter="frontend">Frontend & Web</button>
+              <button class="filter-pill" data-filter="uiux">UI/UX Design</button>
+              <button class="filter-pill" data-filter="logic">Lógica & Dados</button>
+              <button class="filter-pill" data-filter="business">Negócios & IA</button>
+            </div>
+          </div>
+
+        </aside>
+
+        <!-- ── Main: badges + lista ───────────────────────── -->
+        <main class="certs-main" id="certs-main">
+
+          <!-- Título do grid -->
+          <div class="certs-grid-title">
+            <span id="grid-label">Badges DIO</span>
+            <span class="grid-count" id="grid-count">8 itens</span>
+          </div>
+
+          <!-- Grade de badges -->
+          <div class="badges-grid" id="badges-grid">
+            
+            
+  <!-- 
+  =====================================
+   𝐁𝐚𝐝𝐠𝐞: 𝐃𝐈𝐎 — 1: 
+   𝐈𝐧𝐭𝐫𝐨𝐝𝐮ç𝐚𝐨 𝐚𝐨 𝐔𝐗 𝐃𝐞𝐬𝐢𝐠𝐧
+  ------------------------------------- --> 
+  
+  <!-- ˡⁱⁿᵏ ᵈᵒ ᶜᵉʳᵗⁱᶠⁱᶜᵃᵈᵒ -->
+  <a class="badge-card" href="https://www.dio.me/certificate/92AILSX8/share" target="_blank" rel="noopener" data-plat="DIO" data-skill="uiux">
+  <span class="badge-status"></span>
+
+  <!-- ˡⁱⁿᵏ ᵈᵒ ᵇᵃᵈᵍᵉ -->
+  <img class="badge-img" src="https://hermes.dio.me/courses/badge/053f9156-c51c-47c5-b742-fb05e58fbf87.png" alt="UX Design"
+  onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+
+  <!-- ᶠᵃˡˡᵇᵃᶜᵏ -->
+  <div class="badge-placeholder" style="display:none">🎨</div>
+
+  <!-- ᵈᵉˢᶜʳⁱᶜᵃᵒ ᵈᵒ ᵇᵃᵈᵍᵉ -->
+  <span class="badge-name">Introdução ao UX Design</span>
+  </a>
+
+
+  <!--
+  ============================
+    𝐁𝐚𝐝𝐠𝐞: 𝐃𝐈𝐎 — 2:
+    𝐀𝐮𝐭𝐞𝐧𝐭𝐢𝐜𝐚𝐜𝐨𝐞𝐬
+ ----------------------------- -->        
+   
+  <!-- ˡⁱⁿᵏ ᵈᵒ ᶜᵉʳᵗⁱᶠⁱᶜᵃᵈᵒ -->
+  <a class="badge-card" href="https://www.dio.me/certificate/0XXJ6I3A/share" target="_blank" rel="noopener" data-plat="DIO" data-skill="logic">
+  <span class="badge-status"></span>
+
+  <!-- ˡⁱⁿᵏ ᵈᵒ ᵇᵃᵈᵍᵉ -->
+  <img class="badge-img" src="https://hermes.dio.me/courses/badge/d07c4141-4c45-4986-a1fb-e50f47f4f08a.png" alt="Autenticacões"
+  onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+
+  <!-- ᶠᵃˡˡᵇᵃᶜᵏ -->
+  <div class="badge-placeholder" style="display:none">🎨</div>
+
+  <!-- ᵈᵉˢᶜʳⁱᶜᵃᵒ ᵈᵒ ᵇᵃᵈᵍᵉ -->
+  <span class="badge-name">Autenticacões</span>
+  </a>
+
+
+     <!--
+  ============================
+    𝐁𝐚𝐝𝐠𝐞: 𝐃𝐈𝐎 — 3: 
+    𝐈𝐧𝐭𝐫𝐨𝐝𝐮ç𝐚𝐨 𝐚 𝐋𝐨𝐠𝐢𝐜𝐚 𝐝𝐞 𝐏𝐫𝐨𝐠𝐫𝐚𝐦𝐚ç𝐚𝐨 𝐜𝐨𝐦 𝐚 𝐆𝐅𝐓
+ ----------------------------- -->        
+   
+   <!-- ˡⁱⁿᵏ ᵈᵒ ᶜᵉʳᵗⁱᶠⁱᶜᵃᵈᵒ -->
+    <a class="badge-card" href="https://www.dio.me/certificate/CFUMTB0O/share" target="_blank" rel="noopener" data-plat="DIO" data-skill="logic">
+    <span class="badge-status"></span>
+
+    <!-- ˡⁱⁿᵏ ᵈᵒ ᵇᵃᵈᵍᵉ -->
+    <img class="badge-img" src="https://hermes.dio.me/courses/badge/a9d181cd-270b-4db8-91b9-50f8214b2713.png" alt="Autenticacões"
+    onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+
+    <!-- ᶠᵃˡˡᵇᵃᶜᵏ -->
+    <div class="badge-placeholder" style="display:none">🎨</div>
+
+    <!-- ᵈᵉˢᶜʳⁱᶜᵃᵒ ᵈᵒ ᵇᵃᵈᵍᵉ -->
+    <span class="badge-name">Introdução a Lógica de Programação com a GFT</span>
+    </a>
+
+
+       <!--
+    ============================
+      𝐁𝐚𝐝𝐠𝐞: Dio - 4 :
+      𝐀𝐩𝐞𝐫𝐭𝐞 𝐒𝐭𝐚𝐫𝐭 𝐜𝐨𝐦 𝐋𝐨𝐠𝐢𝐜𝐚 de 𝐏𝐫𝐨𝐠𝐫𝐚𝐦𝐚ç𝐚𝐨
+ ----------------------------- -->  
+
+     <!-- ˡⁱⁿᵏ ᵈᵒ ᶜᵉʳᵗⁱᶠⁱᶜᵃᵈᵒ -->
+    <a class="badge-card" href="https://www.dio.me/certificate/XKZ7AS76/share" target="_blank" rel="noopener" data-plat="DIO" data-skill="logic">
+    <span class="badge-status"></span>
+
+    <!-- ˡⁱⁿᵏ ᵈᵒ ᵇᵃᵈᵍᵉ -->
+    <img class="badge-img" src="https://hermes.dio.me/courses/badge/38352227-34a4-4a19-a6bd-8f5f04a1d536.png" alt="Autenticacões"
+    onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+
+    <!-- ᶠᵃˡˡᵇᵃᶜᵏ -->
+    <div class="badge-placeholder" style="display:none">🎨</div>
+
+    <!-- ᵈᵉˢᶜʳⁱᶜᵃᵒ ᵈᵒ ᵇᵃᵈᵍᵉ -->
+    <span class="badge-name">Aperte Start com Lógica de Programação</span>
+    </a>
+
+
+     <!--
+  ============================
+    𝐁𝐚𝐝𝐠𝐞: 𝐃𝐈𝐎 — 5:
+    𝐃𝐞𝐬𝐚𝐟𝐢𝐨𝐬 𝐝𝐞 𝐏𝐫𝐨𝐣𝐞𝐭𝐨𝐬: 𝐂𝐫𝐢𝐞 𝐔𝐦 𝐏𝐨𝐫𝐭𝐟𝐨𝐥𝐢𝐨 𝐕𝐞𝐧𝐜𝐞𝐝𝐨𝐫
+ ----------------------------- -->  
+
+     <!-- ˡⁱⁿᵏ ᵈᵒ ᶜᵉʳᵗⁱᶠⁱᶜᵃᵈᵒ -->
+    <a class="badge-card" href="https://www.dio.me/certificate/Q1UIP6G6/share" target="_blank" rel="noopener" data-plat="DIO" data-skill="business">
+    <span class="badge-status"></span>
+
+    <!-- ˡⁱⁿᵏ ᵈᵒ ᵇᵃᵈᵍᵉ -->
+    <img class="badge-img" src="https://hermes.dio.me/courses/badge/a77c03e1-0c3b-49c4-b6b8-e002cbc4bf90.png" alt="Autenticacões"
+    onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+
+    <!-- ᶠᵃˡˡᵇᵃᶜᵏ -->
+    <div class="badge-placeholder" style="display:none">🎨</div>
+
+    <!-- ᵈᵉˢᶜʳⁱᶜᵃᵒ ᵈᵒ ᵇᵃᵈᵍᵉ -->
+    <span class="badge-name">Crie Um Portfólio Vencedor</span>
+    </a>
+
+
+
+            <!-- Badges DIO — placeholder (adicione o link e img real) -->
+            <div class="badge-card is-placeholder" data-plat="DIO" data-skill="frontend">
+              <span class="badge-status"></span>
+              <div class="badge-placeholder">🌐</div>
+              <span class="badge-name">HTML5 Semântico</span>
+            </div>
+            <div class="badge-card is-placeholder" data-plat="DIO" data-skill="frontend">
+              <span class="badge-status"></span>
+              <div class="badge-placeholder">📋</div>
+              <span class="badge-name">Formulários HTML</span>
+            </div>
+            <div class="badge-card is-placeholder" data-plat="DIO" data-skill="uiux">
+              <span class="badge-status"></span>
+              <div class="badge-placeholder">🏗️</div>
+              <span class="badge-name">Arq. da Informação</span>
+            </div>
+            <div class="badge-card is-placeholder" data-plat="DIO" data-skill="frontend">
+              <span class="badge-status"></span>
+              <div class="badge-placeholder">🔀</div>
+              <span class="badge-name">Git &amp; GitHub</span>
+            </div>
+            <div class="badge-card is-placeholder" data-plat="DIO" data-skill="logic">
+              <span class="badge-status"></span>
+              <div class="badge-placeholder">🧩</div>
+              <span class="badge-name">Lógica de Prog.</span>
+            </div>
+            <div class="badge-card is-placeholder" data-plat="DIO" data-skill="business">
+              <span class="badge-status"></span>
+              <div class="badge-placeholder">📊</div>
+              <span class="badge-name">Excel com IA</span>
+            </div>
+            <div class="badge-card is-placeholder" data-plat="DIO" data-skill="business">
+              <span class="badge-status"></span>
+              <div class="badge-placeholder">⚡</div>
+              <span class="badge-name">Santander Bootcamp</span>
+            </div>
+
+            <!-- Badges Origamid -->
+            <div class="badge-card is-placeholder" data-plat="Origamid" data-skill="frontend">
+              <span class="badge-status"></span>
+              <div class="badge-placeholder">🎨</div>
+              <span class="badge-name">HTML &amp; CSS Iniciantes</span>
+            </div>
+            <div class="badge-card is-placeholder" data-plat="Origamid" data-skill="logic">
+              <span class="badge-status"></span>
+              <div class="badge-placeholder">🗄️</div>
+              <span class="badge-name">Banco de Dados SQLite</span>
+            </div>
+
+            <!-- Badges Udemy -->
+            <div class="badge-card is-placeholder" data-plat="Udemy" data-skill="business">
+              <span class="badge-status"></span>
+              <div class="badge-placeholder">🤖</div>
+              <span class="badge-name">ChatGPT Completo</span>
+            </div>
+            <div class="badge-card is-placeholder" data-plat="Udemy" data-skill="business">
+              <span class="badge-status"></span>
+              <div class="badge-placeholder">⚙️</div>
+              <span class="badge-name">Zapier Avançado</span>
+            </div>
+            <div class="badge-card is-placeholder" data-plat="Udemy" data-skill="business">
+              <span class="badge-status"></span>
+              <div class="badge-placeholder">💡</div>
+              <span class="badge-name">50 Gatilhos Mentais</span>
+            </div>
+
+            <!-- UNICAP -->
+            <div class="badge-card is-placeholder" data-plat="UNICAP" data-skill="uiux">
+              <span class="badge-status"></span>
+              <div class="badge-placeholder">🎓</div>
+              <span class="badge-name">Análise de Interface</span>
+            </div>
+            <div class="badge-card is-placeholder" data-plat="UNICAP" data-skill="logic">
+              <span class="badge-status"></span>
+              <div class="badge-placeholder">☕</div>
+              <span class="badge-name">Lógica Java</span>
+            </div>
+
+            <!-- Sebrae -->
+            <div class="badge-card is-placeholder" data-plat="Sebrae" data-skill="business">
+              <span class="badge-status"></span>
+              <div class="badge-placeholder">📈</div>
+              <span class="badge-name">Business Model Canvas</span>
+            </div>
+            <div class="badge-card is-placeholder" data-plat="Sebrae" data-skill="business">
+              <span class="badge-status"></span>
+              <div class="badge-placeholder">📣</div>
+              <span class="badge-name">Marketing Digital</span>
+            </div>
+
+          </div><!-- /badges-grid -->
+
+          <!-- Lista por competência -->
+          <p class="certs-list-title">Certificados detalhados</p>
+
+          <div class="cert-rows" id="cert-rows">
+
+            <div class="cert-row" data-plat="Origamid" data-skill="frontend">
+              <span class="cert-plat-dot" style="background:#c084fc"></span>
+              <div class="cert-row-name"><strong>Origamid</strong>HTML e CSS para Iniciantes — Grid, Flexbox, DOM, Responsivo</div>
+              <span class="cert-row-hours">46h · Jul/25</span>
+              <a href="#" class="cert-btn-view" target="_blank">Ver</a>
+            </div>
+            <div class="cert-row" data-plat="Origamid" data-skill="logic">
+              <span class="cert-plat-dot" style="background:#c084fc"></span>
+              <div class="cert-row-name"><strong>Origamid</strong>Banco de Dados SQLite — CRUD, JOINs, Triggers, Normalização</div>
+              <span class="cert-row-hours">16h · Set/25</span>
+              <a href="#" class="cert-btn-view" target="_blank">Ver</a>
+            </div>
+            <div class="cert-row" data-plat="DIO" data-skill="frontend">
+              <span class="cert-plat-dot" style="background:var(--accent)"></span>
+              <div class="cert-row-name"><strong>DIO</strong>HTML5 Semântico, Mídias, Tabelas, Formulários e HTML na Prática</div>
+              <span class="cert-row-hours">13 cursos</span>
+              <a href="#" class="cert-btn-view" target="_blank">Ver</a>
+            </div>
+            <div class="cert-row" data-plat="DIO" data-skill="uiux">
+              <span class="cert-plat-dot" style="background:var(--accent)"></span>
+              <div class="cert-row-name"><strong>DIO</strong>UX Design: Introdução, Arquitetura da Informação e Produtos Digitais</div>
+              <span class="cert-row-hours">4 cursos</span>
+              <a href="https://www.dio.me/certificate/92AILSX8/share" class="cert-btn-view" target="_blank">Ver</a>
+            </div>
+            <div class="cert-row" data-plat="DIO" data-skill="logic">
+              <span class="cert-plat-dot" style="background:var(--accent)"></span>
+              <div class="cert-row-name"><strong>DIO</strong>Lógica de Programação — Variáveis, Loops, Condicionais, Arrays</div>
+              <span class="cert-row-hours">18 cursos</span>
+              <a href="https://www.dio.me/certificate/XKZ7AS76/share" class="cert-btn-view" target="_blank">Ver</a>
+            </div>
+            <div class="cert-row" data-plat="DIO" data-skill="frontend">
+              <span class="cert-plat-dot" style="background:var(--accent)"></span>
+              <div class="cert-row-name"><strong>DIO</strong>Git &amp; GitHub — Versionamento e Contribuição Open Source</div>
+              <span class="cert-row-hours">2 cursos</span>
+              <a href="#" class="cert-btn-view" target="_blank">Ver</a>
+            </div>
+            <div class="cert-row" data-plat="DIO" data-skill="business">
+              <span class="cert-plat-dot" style="background:var(--accent)"></span>
+              <div class="cert-row-name"><strong>DIO</strong>Excel 365 com IA — Tabelas, Funções e Automação</div>
+              <span class="cert-row-hours">4 cursos</span>
+              <a href="#" class="cert-btn-view" target="_blank">Ver</a>
+            </div>
+            <div class="cert-row" data-plat="DIO" data-skill="business">
+              <span class="cert-plat-dot" style="background:var(--accent)"></span>
+              <div class="cert-row-name"><strong>DIO</strong>Bootcamps GFT Start #6 + Santander 2025</div>
+              <span class="cert-row-hours">4 lives</span>
+              <a href="https://www.dio.me/certificate/Q1UIP6G6/share" class="cert-btn-view" target="_blank">Ver</a>
+            </div>
+            <div class="cert-row" data-plat="Udemy" data-skill="business">
+              <span class="cert-plat-dot" style="background:#fb923c"></span>
+              <div class="cert-row-name"><strong>Udemy</strong>ChatGPT Completo + Zapier do Zero ao Avançado</div>
+              <span class="cert-row-hours">IA & Auto.</span>
+              <a href="#" class="cert-btn-view" target="_blank">Ver</a>
+            </div>
+            <div class="cert-row" data-plat="Udemy" data-skill="business">
+              <span class="cert-plat-dot" style="background:#fb923c"></span>
+              <div class="cert-row-name"><strong>Udemy</strong>50 Gatilhos Mentais em Vendas + HTML5 para Iniciantes</div>
+              <span class="cert-row-hours">Marketing</span>
+              <a href="#" class="cert-btn-view" target="_blank">Ver</a>
+            </div>
+            <div class="cert-row" data-plat="UNICAP" data-skill="logic">
+              <span class="cert-plat-dot" style="background:#60a5fa"></span>
+              <div class="cert-row-name"><strong>UNICAP</strong>Análise de Interface · HTML Web · Lógica Java · Inglês TI · Ética</div>
+              <span class="cert-row-hours">1º Per. 2025</span>
+              <a href="#" class="cert-btn-view" target="_blank">Ver</a>
+            </div>
+            <div class="cert-row" data-plat="Sebrae" data-skill="business">
+              <span class="cert-plat-dot" style="background:#4ade80"></span>
+              <div class="cert-row-name"><strong>Sebrae · Berlim</strong>Business Model Canvas + Estratégias de Marketing Digital</div>
+              <span class="cert-row-hours">Empreend.</span>
+              <a href="#" class="cert-btn-view" target="_blank">Ver</a>
+            </div>
+
+          </div><!-- /cert-rows -->
+
+          <button id="btn-cert-expand" class="cert-btn-view" style="width:100%; margin-top: 1rem; padding: 1rem; cursor:pointer;" aria-expanded="false">
+            <span style="margin-right: 8px">▼</span> VER TODOS OS CERTIFICADOS
+          </button>
+
+        </main><!-- /certs-main -->
+
+      </div><!-- /certs-sticky -->
+    </div><!-- /certs-driver -->
+
+    <!-- ============================================================
+         CONTATO & BRIEFING WIZARD 
+         ============================================================ -->
+    <section id="contato" class="section">
+      <div class="section-inner" style="max-width: 600px; margin: 0 auto; text-align: center;">
+        <header class="section-header" style="text-align:center;">
+          <p class="section-cat">Contato</p>
+          <h2 class="section-title">Briefing do Projeto</h2>
+          <p style="color:var(--mid); font-size:.9rem; margin-top:.5rem;">Preencha o formulário e inicie o nosso contato via WhatsApp internacional direto de Londres.</p>
+        </header>
+
+        <div style="background:var(--bg-up); border:1px solid var(--bdr); border-radius:16px; padding:2.5rem; box-shadow:0 10px 40px rgba(0,0,0,0.2); position:relative; text-align:left;">
+          
+          <!-- ETAPA 1: Dados Pessoais -->
+          <div class="etapa" id="etapa-1" style="display:block;">
+            <h3 style="font-size:1.4rem; color:var(--hi); margin-bottom:.5rem;">Quem é você?</h3>
+            <p style="font-size:.9rem; color:var(--mid); margin-bottom:1.5rem;">Nos conte seu nome, e-mail e WhatsApp</p>
+            
+            <input class="inp" type="text" id="nome" placeholder="Nome completo" oninput="validarEtapa1()">
+            <input class="inp" type="email" id="email" placeholder="Seu melhor e-mail" oninput="validarEtapa1()">
+            <input class="inp" type="tel" id="telefone" placeholder="WhatsApp (ex: 81999999999)" oninput="validarEtapa1()">
+
+            <div style="display:flex; justify-content:flex-end; margin-top:2rem;">
+              <button class="btn-p btn-wizard" id="btn1" disabled onclick="irEtapa(2)">Continuar →</button>
+            </div>
+          </div>
+
+          <!-- ETAPA 2: Sobre o Projeto -->
+          <div class="etapa" id="etapa-2" style="display:none;">
+            <h3 style="font-size:1.4rem; color:var(--hi); margin-bottom:.5rem;">Sobre o seu projeto</h3>
+            <p style="font-size:.9rem; color:var(--mid); margin-bottom:1.5rem;">O que você precisa? Qual o objetivo principal?</p>
+            
+            <textarea class="inp" id="projeto" rows="3" placeholder="Ex: Loja online de roupas, portfólio de fotografia, sistema SaaS..." oninput="validarEtapa2()"></textarea>
+            <input class="inp" type="text" id="negocio" placeholder="Nome da empresa / marca / projeto">
+            
+            <div style="display:flex; justify-content:space-between; margin-top:2rem;">
+              <button class="btn-s" onclick="irEtapa(1)">← Voltar</button>
+              <button class="btn-p btn-wizard" id="btn2" disabled onclick="irEtapa(3)">Continuar →</button>
+            </div>
+          </div>
+
+          <!-- ETAPA 3: Páginas e Estrutura -->
+          <div class="etapa" id="etapa-3" style="display:none;">
+            <h3 style="font-size:1.4rem; color:var(--hi); margin-bottom:.5rem;">Quais páginas você quer?</h3>
+            <p style="font-size:.9rem; color:var(--mid); margin-bottom:1.5rem;">Liste as principais páginas e módulos</p>
+            
+            <textarea class="inp" id="paginas" rows="3" placeholder="Ex: Home, Sobre, Serviços, Portfólio, Contato..." oninput="validarEtapa3()"></textarea>
+            <select class="inp" id="tipoSite">
+              <option value="">Tipo de site desejado...</option>
+              <option value="institucional">Institucional / Apresentação</option>
+              <option value="portifolio">Portfólio / Pessoal</option>
+              <option value="loja">Loja Virtual (e-commerce)</option>
+              <option value="blog">Blog / Conteúdo</option>
+              <option value="landing">Landing Page / Captura de leads</option>
+              <option value="sistema">Sistema Web Complexo</option>
+              <option value="outro">Outro...</option>
+            </select>
+            
+            <div style="display:flex; justify-content:space-between; margin-top:2rem;">
+              <button class="btn-s" onclick="irEtapa(2)">← Voltar</button>
+              <button class="btn-p btn-wizard" id="btn3" disabled onclick="irEtapa(4)">Continuar →</button>
+            </div>
+          </div>
+
+          <!-- ETAPA 4: Design e Preferências -->
+          <div class="etapa" id="etapa-4" style="display:none;">
+            <h3 style="font-size:1.4rem; color:var(--hi); margin-bottom:.5rem;">Estilo e Cores</h3>
+            <p style="font-size:.9rem; color:var(--mid); margin-bottom:1.5rem;">Como você imagina a estética do visual?</p>
+            
+            <input class="inp" type="text" id="cores" placeholder="Cores preferidas (ex: dark mode, azul neon, tons pastel...)">
+            <textarea class="inp" id="estilo" rows="2" placeholder="Estilo desejado (ex: moderno clean, corporativo elegante...)"></textarea>
+            <textarea class="inp" id="referencias" rows="2" placeholder="Sites de referência (cole os links – ex: https://apple.com)"></textarea>
+            
+            <div style="display:flex; justify-content:space-between; margin-top:2rem;">
+              <button class="btn-s" onclick="irEtapa(3)">← Voltar</button>
+              <button class="btn-p btn-wizard" id="btn4" onclick="irEtapa(5)">Ver Resumo →</button>
+            </div>
+          </div>
+
+          <!-- ETAPA 5: Revisão + Enviar -->
+          <div class="etapa" id="etapa-5" style="display:none;">
+            <h3 style="font-size:1.4rem; color:var(--hi); margin-bottom:.5rem;">Revise seu Briefing</h3>
+            <p style="font-size:.9rem; color:var(--mid); margin-bottom:1.5rem;">Tudo certo? Vamos iniciar a conversa!</p>
+            
+            <div id="review-box" style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:12px; padding:16px; margin-bottom:1.5rem; font-size:.85rem; color:var(--lo); word-break:break-word;">
+              <!-- Javascript populates -->
+            </div>
+
+            <div style="display:none;" id="msg-preview"></div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2rem;">
+              <button class="btn-s" onclick="irEtapa(4)">← Voltar</button>
+              <button class="btn-p" onclick="enviarWhatsApp()" style="background:#25D366; color:#fff; border-color:#25D366; box-shadow:0 0 15px rgba(37,211,102,.4);">WhatsApp</button>
+            </div>
+          </div>
+
+          <!-- ETAPA 6: Sucesso -->
+          <div class="etapa" id="etapa-6" style="display:none; text-align:center;">
+             <div style="width:60px; height:60px; border-radius:50%; background:linear-gradient(135deg, #25D366, #128C7E); display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem; font-size:1.8rem; box-shadow:0 0 20px rgba(37,211,102,.5);">✓</div>
+             <h3 style="font-size:1.4rem; color:var(--hi); margin-bottom:.5rem;">Briefing Transferido!</h3>
+             <p style="font-size:.9rem; color:var(--mid); margin-bottom:1rem;">O WhatsApp abrirá com sua solicitação montada.</p>
+             <p style="font-size:.85rem; color:var(--lo);">Em breve avaliaremos seu projeto em conjunto.</p>
+          </div>
+
+        </div>
+        
+        <p style="margin-top:1.5rem; font-size:.7rem; color:var(--lo); letter-spacing:.1em; text-transform:uppercase;">Respostas confidenciais • Direto para a desenvolvedora</p>
+      </div>
+
+      
+    </section>
+
+  </div><!-- /sroot -->
+
+  <!-- ============================================================
+       SCRIPTS
+       ============================================================ -->
+  
+  <script src="main.js" defer></script>
+</body>
+</html>

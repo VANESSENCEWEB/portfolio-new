@@ -1,0 +1,964 @@
+
+    /* ==============================================================
+       TOKENS — Princípio 3: CONTRASTE
+       Hierarquia clara: --hi (100%) → --mid (50%) → --lo (22%)
+       Accent muda com o switcher; todo o sistema reage.
+       ============================================================== */
+    :root {
+      --accent      : #00d4ff;
+      --accent-rgb  : 0,212,255;
+      --accent-hot  : #80eaff;
+      --accent-glow : rgba(0,212,255,.55);
+      --accent-mid  : rgba(0,212,255,.30);
+      --accent-faint: rgba(0,212,255,.08);
+
+      --bg    : #070711;
+      --bg-2  : #0b0b18;   /* seções alternadas */
+      --bg-up : #0e0e1e;
+      --glass : rgba(7,7,17,.58);
+
+      --hi  : #ecedf5;
+      --mid : rgba(236,237,245,.52);
+      --lo  : rgba(236,237,245,.22);
+      --bdr : rgba(255,255,255,.07);
+      --bdra: rgba(var(--accent-rgb),.25);
+
+      --ffd : 'Syne', sans-serif;
+      --ffb : 'DM Sans', sans-serif;
+      --ease: cubic-bezier(.22,1,.36,1);
+
+      /* Grid rhythm — Princípio 4: ALINHAMENTO */
+      --sp-xs: .5rem;
+      --sp-sm: 1rem;
+      --sp-md: 2rem;
+      --sp-lg: 4rem;
+      --sp-xl: 7rem;
+    }
+
+    /* ── Light mode ────────────────────────────────────────────── */
+    [data-theme="light"] {
+      --bg    : #eef2ff;
+      --bg-2  : #e8edff;
+      --bg-up : #e2e8ff;
+      --glass : rgba(238,242,255,.70);
+      --hi    : #0a0a18;
+      --mid   : rgba(10,10,24,.55);
+      --lo    : rgba(10,10,24,.26);
+      --bdr   : rgba(0,0,0,.08);
+    }
+
+    /* ── Pride: IMATERIAL em gradiente rainbow animado ─────────── */
+    body.pride .ltr.is-accent {
+      background: linear-gradient(90deg,#ff0000 0%,#ff8800 18%,#ffee00 36%,#00dd44 54%,#2244ff 72%,#aa00ff 100%);
+      background-size: 200% 100%;
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent; color: transparent !important;
+      text-shadow: none !important;
+      animation: rainbowShift 3.5s linear infinite;
+    }
+    @keyframes rainbowShift { from{background-position:0%} to{background-position:200%} }
+
+    /* ==============================================================
+       RESET
+       ============================================================== */
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    html { overflow-x:hidden; scroll-behavior:smooth; }
+    body { font-family:var(--ffb); background:var(--bg); color:var(--hi); overflow-x:hidden; transition:background .4s,color .4s; }
+    body.no-cur { cursor:none; }
+
+    /* ==============================================================
+       CURSOR
+       ============================================================== */
+    .c-dot  { position:fixed; width:8px; height:8px; background:var(--accent); border-radius:50%; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); }
+    .c-ring { position:fixed; width:38px; height:38px; border:1.5px solid var(--accent-mid); border-radius:50%; pointer-events:none; z-index:9998; transform:translate(-50%,-50%); transition:width .35s var(--ease),height .35s var(--ease),border-color .3s; }
+    .c-ring.hov { width:58px; height:58px; border-color:var(--accent); }
+
+    /* ==============================================================
+       NAVBAR — Princípio 4: ALINHAMENTO (logo|links|ações em linha)
+                Princípio 2: AGRUPAMENTO (3 grupos claramente separados)
+       ============================================================== */
+    #nav {
+      position:fixed; top:0; left:0; right:0; z-index:200;
+      background:var(--glass);
+      backdrop-filter:blur(28px) saturate(180%);
+      -webkit-backdrop-filter:blur(28px) saturate(180%);
+      border-bottom:1px solid var(--bdr);
+      transition:background .4s, box-shadow .4s;
+    }
+    #nav.sc { background:rgba(7,7,17,.94); box-shadow:0 1px 0 rgba(var(--accent-rgb),.15), 0 8px 40px rgba(0,0,0,.4); }
+    [data-theme="light"] #nav.sc { background:rgba(238,242,255,.96); }
+
+    .ni { max-width:1400px; margin:0 auto; padding:1rem 2rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+
+    /* Logo — Princípio 1: REPETIÇÃO (mesmo ponto ciano do accent) */
+    .logo { font-family:var(--ffd); font-weight:800; font-size:1.2rem; letter-spacing:-.05em; color:var(--hi); text-decoration:none; display:flex; align-items:center; gap:.3rem; flex-shrink:0; }
+    .ld { width:6px; height:6px; background:var(--accent); border-radius:50%; animation:dotPulse 2.2s ease-in-out infinite; }
+
+    .nl { display:flex; align-items:center; gap:2rem; list-style:none; }
+    .nl a { font-size:.63rem; font-weight:500; letter-spacing:.14em; text-transform:uppercase; color:var(--mid); text-decoration:none; position:relative; transition:color .3s; }
+    .nl a::after { content:''; position:absolute; bottom:-4px; left:0; width:0; height:1px; background:var(--accent); transition:width .38s var(--ease); }
+    .nl a:hover { color:var(--hi); }
+    .nl a:hover::after { width:100%; }
+
+    .na { display:flex; align-items:center; gap:.45rem; flex-shrink:0; }
+    .tog { display:inline-flex; align-items:center; gap:.35rem; padding:.35rem .7rem; font-size:.6rem; font-weight:500; letter-spacing:.1em; text-transform:uppercase; color:var(--mid); background:rgba(255,255,255,.04); border:1px solid var(--bdr); border-radius:2px; cursor:pointer; transition:color .3s,border-color .3s,background .3s; }
+    .tog:hover { color:var(--hi); border-color:var(--bdra); background:var(--accent-faint); }
+    .tog svg { width:12px; height:12px; flex-shrink:0; stroke:currentColor; fill:none; stroke-linecap:round; }
+
+    .btn-nav { display:inline-block; padding:.45rem 1.2rem; font-family:var(--ffd); font-size:.62rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--bg); background:var(--accent); text-decoration:none; position:relative; overflow:hidden; transition:box-shadow .35s,transform .25s; }
+    .btn-nav::before { content:''; position:absolute; top:0; left:-120%; width:100%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent); transition:left .5s; }
+    .btn-nav:hover::before { left:120%; }
+    .btn-nav:hover { box-shadow:0 0 24px var(--accent-mid); transform:translateY(-1px); }
+
+    .ham { display:none; flex-direction:column; justify-content:center; gap:5px; background:none; border:none; cursor:pointer; padding:4px; }
+    .ham span { display:block; width:22px; height:1.5px; background:var(--hi); border-radius:1px; transition:all .35s var(--ease); }
+    .ham.open span:nth-child(1) { transform:rotate(45deg) translate(4.5px,4.5px); }
+    .ham.open span:nth-child(2) { opacity:0; }
+    .ham.open span:nth-child(3) { transform:rotate(-45deg) translate(4.5px,-4.5px); }
+
+    @media(max-width:900px) { .nl,.na .tog,.na .btn-nav { display:none; } .ham { display:flex; } }
+
+    /* ==============================================================
+       COLOR SWITCHER — Princípio 1: REPETIÇÃO (bolinhas iguais)
+       ============================================================== */
+    #csw { position:fixed; bottom:var(--sp-md); right:1.25rem; z-index:150; display:flex; flex-direction:column; gap:.5rem; align-items:center; }
+    .sw-lbl { font-size:.44rem; letter-spacing:.18em; text-transform:uppercase; color:var(--lo); writing-mode:vertical-lr; transform:rotate(180deg); margin-bottom:.2rem; }
+    .sw-d { width:14px; height:14px; border-radius:50%; border:2px solid rgba(255,255,255,.14); cursor:pointer; transition:transform .25s,border-color .25s; position:relative; }
+    .sw-d:hover,.sw-d.on { transform:scale(1.35); border-color:rgba(255,255,255,.55); }
+    .sw-d.on::after { content:''; position:absolute; inset:-3px; border-radius:50%; border:1px solid currentColor; opacity:.5; }
+    .sw-c { background:#00d4ff; box-shadow:0 0 6px rgba(0,212,255,.7); color:#00d4ff; }
+    .sw-g { background:#00ff88; box-shadow:0 0 6px rgba(0,255,136,.6); color:#00ff88; }
+    .sw-p { background:#ff2d78; box-shadow:0 0 6px rgba(255,45,120,.6); color:#ff2d78; }
+    .sw-r { background:conic-gradient(#ff0000,#ff8800,#ffee00,#00dd44,#2244ff,#aa00ff,#ff0000); color:#ff8800; }
+
+    /* ==============================================================
+       CANVAS + OVERLAYS (globo, fixo atrás de tudo)
+       ============================================================== */
+    #globe-canvas { position:fixed; inset:0; width:100%; height:100%; z-index:0; }
+    .vignette { position:fixed; inset:0; z-index:1; pointer-events:none; background:radial-gradient(ellipse at 38% 42%,transparent 22%,rgba(7,7,17,.82) 100%); transition:background .5s; }
+    [data-theme="light"] .vignette { background:radial-gradient(ellipse at 38% 42%,transparent 22%,rgba(238,242,255,.72) 100%); }
+    .scanlines { position:fixed; inset:0; z-index:1; pointer-events:none; opacity:.28; background:repeating-linear-gradient(to bottom,transparent 0,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px); }
+    [data-theme="light"] .scanlines { opacity:.04; }
+
+    /* SCROLL ROOT */
+    #sroot { position:relative; z-index:2; }
+
+    /* ==============================================================
+       HERO — Princípio 4: ALINHAMENTO (tudo em grid preciso)
+                Princípio 2: AGRUPAMENTO (esq: título+btns | dir: copy)
+
+       Mobile  : coluna única, padding seguro, texto centralizado
+       Desktop : grade 55/45, texto à esquerda em ambas as colunas
+       ============================================================== */
+    #hero {
+      min-height:100vh;
+      display:grid;
+      grid-template-columns:1fr;
+      padding-top:4.5rem;  /* navbar */
+      position:relative;
+    }
+    @media(min-width:900px) {
+      #hero {
+        grid-template-columns:55% 45%;
+        grid-template-rows:1fr auto; /* rows: conteúdo | scroll-hint */
+      }
+    }
+
+    /* ── Coluna esquerda ─────────────────────────────────────── */
+    .h-left {
+      display:flex; flex-direction:column;
+      justify-content:flex-end;
+      /* overflow:hidden garante que o beam nunca ultrapasse a coluna */
+      overflow:hidden;
+      padding:var(--sp-md) 1.25rem var(--sp-lg);
+    }
+    @media(min-width:480px) { .h-left { padding:var(--sp-md) var(--sp-md) var(--sp-lg); } }
+    @media(min-width:900px) { .h-left { padding:var(--sp-md) var(--sp-md) var(--sp-lg) var(--sp-xl); overflow:visible; } }
+    @media(min-width:1200px){ .h-left { padding:var(--sp-lg) var(--sp-md) var(--sp-lg) var(--sp-xl); } }
+
+    /* Espaço que visualmente "acomoda" o globo no mobile */
+    .globe-space { height:42vw; min-height:160px; max-height:300px; flex-shrink:0; }
+    @media(min-width:900px) { .globe-space { display:none; } }
+
+    /* Tag acima do título — Princípio 1: REPETIÇÃO (tracinho + texto + tracinho) */
+    .h-tag {
+      display:inline-flex; align-items:center; gap:.5rem; flex-wrap:wrap;
+      font-size:.56rem; letter-spacing:.22em; text-transform:uppercase;
+      color:var(--accent); margin-bottom:var(--sp-sm);
+      opacity:0;
+    }
+    .h-tag::before,.h-tag::after { content:''; flex-shrink:0; width:22px; height:1px; background:currentColor; }
+    @media(min-width:900px) { .h-tag { justify-content:flex-start; } }
+
+    /* ==============================================================
+       LASER TEXT SYSTEM
+       Princípio 3: CONTRASTE (PROJETAMOS branco vs IMATERIAL ciano)
+       Princípio 4: ALINHAMENTO (centralizado mobile, esquerda desktop)
+       ============================================================== */
+    #laser-block {
+      opacity:0;
+      /* Garante que o texto nunca ultrapasse o container */
+      max-width:100%;
+      overflow:hidden;
+    }
+
+    /* Wrapper externo — contém o overflow do beam */
+    .lhl-wrap {
+      overflow:hidden;
+      width:100%;
+    }
+
+    /* Cada linha de headline — position:relative para o beam */
+    .lhl {
+      position:relative;
+      display:inline-block;   /* dimensão exata do texto para o beam */
+      font-family:var(--ffd);
+      font-weight:800;
+      line-height:.93;
+      letter-spacing:-.03em;
+      white-space:nowrap;
+      /* Mobile: usa dvw como unidade primária para caber sempre */
+      font-size:clamp(1.45rem, 7.8vw, 3rem);
+      text-align:center;
+    }
+
+    /* Tablet */
+    @media(min-width:500px) {
+      .lhl { font-size:clamp(2rem, 7.8vw, 3.2rem); }
+    }
+    /* Desktop */
+    @media(min-width:900px) {
+      .lhl { font-size:clamp(2.5rem, 4vw, 5.5rem); text-align:left; display:block; }
+    }
+
+    /* Espaço entre as duas linhas */
+    #lhl2 { margin-top:.06em; }
+
+    /* ── Spans de letra ────────────────────────────────────── */
+    .ltr { display:inline-block; opacity:0; color:var(--hi); transition:color .45s ease,text-shadow .45s ease; }
+    .ltr.is-space { opacity:1; display:inline-block; width:.28em; }
+
+    /* IMATERIAL em ciano com glow permanente após reveal */
+    .ltr.is-accent {
+      color:var(--accent);
+      text-shadow:
+        0 0 35px rgba(var(--accent-rgb),.65),
+        0 0 70px  rgba(var(--accent-rgb),.28),
+        0 0 120px rgba(var(--accent-rgb),.10);
+    }
+
+    /* Flash: letra recém "queimada" pelo laser */
+    .ltr.flash {
+      color:#ffffff !important;
+      -webkit-text-fill-color:#ffffff !important;
+      text-shadow:
+        0 0 8px  rgba(var(--accent-rgb),1),
+        0 0 24px rgba(var(--accent-rgb),.8),
+        0 0 60px rgba(var(--accent-rgb),.5),
+        0 0 120px rgba(var(--accent-rgb),.2) !important;
+    }
+
+    /* ── Beam (linha vertical luminosa) ─────────────────────
+       Porta exata do arquivo de referência
+    ──────────────────────────────────────────────────────── */
+    .lbeam {
+      position:absolute; top:-20px; bottom:-20px;
+      width:2px;
+      transform:translateX(-50%);
+      border-radius:999px;
+      opacity:0; pointer-events:none; z-index:20;
+      background:linear-gradient(to bottom,
+        transparent,
+        rgba(255,255,255,.95) 15%,
+        var(--accent) 50%,
+        rgba(255,255,255,.95) 85%,
+        transparent);
+      box-shadow:
+        0 0 3px  1px rgba(var(--accent-rgb),1),
+        0 0 10px 4px rgba(var(--accent-rgb),.80),
+        0 0 25px 9px rgba(var(--accent-rgb),.45),
+        0 0 55px 18px rgba(var(--accent-rgb),.20),
+        0 0 100px 30px rgba(var(--accent-rgb),.08);
+    }
+    /* Flares nas pontas do beam */
+    .lbeam::before,.lbeam::after {
+      content:''; position:absolute; left:50%; transform:translateX(-50%); border-radius:50%;
+    }
+    .lbeam::before { top:0; width:6px; height:6px; background:rgba(255,255,255,.95); box-shadow:0 0 8px 4px rgba(var(--accent-rgb),.9); }
+    .lbeam::after  { bottom:0; width:4px; height:4px; background:rgba(255,255,255,.8); box-shadow:0 0 6px 3px rgba(var(--accent-rgb),.7); }
+
+    /* ── Trace (rastro à esquerda do beam) ───────────────── */
+    .ltrace {
+      position:absolute; top:50%; left:0; transform:translateY(-50%);
+      height:1px; width:0; pointer-events:none; z-index:5;
+      background:linear-gradient(to right,
+        transparent,
+        rgba(var(--accent-rgb),.08) 20%,
+        rgba(var(--accent-rgb),.30) 75%,
+        rgba(var(--accent-rgb),.65));
+    }
+
+    /* ── Botões — sempre visíveis após reveal ─────────────── */
+    .h-btns {
+      display:flex; align-items:center; gap:var(--sp-sm); flex-wrap:wrap;
+      margin-top:var(--sp-md);
+      justify-content:center;
+      opacity:0; transform:translateY(14px);
+    }
+    @media(min-width:900px) { .h-btns { justify-content:flex-start; } }
+
+    /* ── Botão primário — Princípio 1: REPETIÇÃO
+          (mesmo .btn-nav mas maior) ─────────────────────── */
+    .btn-p {
+      display:inline-block; padding:.75rem 2rem;
+      font-family:var(--ffd); font-size:.7rem; font-weight:700;
+      letter-spacing:.12em; text-transform:uppercase;
+      color:var(--bg); background:var(--accent);
+      text-decoration:none; position:relative; overflow:hidden;
+      transition:box-shadow .35s,transform .25s;
+    }
+    .btn-p::before { content:''; position:absolute; top:0; left:-120%; width:100%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent); transition:left .5s; }
+    .btn-p:hover::before { left:120%; }
+    .btn-p:hover { box-shadow:0 0 28px var(--accent-mid); transform:translateY(-2px); }
+
+    .btn-s {
+      display:inline-block; padding:.75rem 2rem;
+      font-family:var(--ffd); font-size:.7rem; font-weight:600;
+      letter-spacing:.12em; text-transform:uppercase;
+      color:var(--hi); background:transparent;
+      border:1px solid var(--bdr); text-decoration:none;
+      transition:border-color .3s,background .3s,color .3s;
+    }
+    .btn-s:hover { border-color:var(--bdra); background:var(--accent-faint); color:var(--accent); }
+
+    /* ── Coluna direita — copy portfolio ─────────────────────
+       Princípio 2: AGRUPAMENTO (bloco coeso de informação)
+       Princípio 4: ALINHAMENTO (tudo alinhado à esquerda)
+    ──────────────────────────────────────────────────────── */
+    .h-right {
+      display:flex; flex-direction:column; justify-content:center;
+      padding:var(--sp-md) var(--sp-md) var(--sp-lg);
+      border-top:1px solid var(--bdr);
+    }
+    @media(min-width:900px) {
+      .h-right {
+        padding:var(--sp-lg) var(--sp-xl) var(--sp-lg) var(--sp-md);
+        border-top:none; border-left:1px solid var(--bdr);
+        grid-row:1;
+      }
+    }
+
+    /* Cada bloco da coluna direita é um elemento separado no GSAP */
+    .hr-item { opacity:0; transform:translateY(10px); }
+
+    /* Label categorização */
+    .h-cat {
+      font-size:.55rem; letter-spacing:.24em; text-transform:uppercase;
+      color:var(--accent); margin-bottom:1.3rem;
+      display:flex; align-items:center; gap:.5rem;
+    }
+    .h-cat::before { content:''; width:18px; height:1px; background:currentColor; flex-shrink:0; }
+
+    /* Headline copy */
+    .h-hl {
+      font-family:var(--ffd); font-weight:700;
+      font-size:clamp(1.5rem, 3vw, 2.6rem);
+      line-height:1.1; letter-spacing:-.025em;
+      color:var(--hi); margin-bottom:1.1rem;
+    }
+    .h-hl em { color:var(--accent); font-style:normal; }
+
+    /* Corpo copy */
+    .h-body {
+      font-size:clamp(.78rem, 1.2vw, .9rem); font-weight:300;
+      line-height:1.82; color:var(--mid); margin-bottom:1.5rem;
+      max-width:360px;
+    }
+
+    /* Lista de diferenciais — Princípio 1: REPETIÇÃO (→ repetido) */
+    .h-feats { list-style:none; display:flex; flex-direction:column; gap:.55rem; margin-bottom:1.5rem; }
+    .h-feats li { display:flex; align-items:baseline; gap:.6rem; font-size:clamp(.72rem,1.1vw,.82rem); color:var(--mid); line-height:1.5; }
+    .h-feats li::before { content:'→'; color:var(--accent); flex-shrink:0; font-size:.72rem; font-family:var(--ffd); }
+    .h-feats li strong { color:var(--hi); font-weight:500; }
+
+    /* Nota final — divider line */
+    .h-note {
+      padding-top:1.2rem; border-top:1px solid var(--bdr);
+      font-size:.6rem; letter-spacing:.06em; line-height:1.7; color:var(--lo);
+    }
+    .h-note .accent-note { color:var(--accent); font-size:.62rem; letter-spacing:.08em; }
+
+    /* ── HUD de coordenadas (estética) ──────────────────────── */
+    #hud { position:fixed; bottom:2rem; left:2rem; z-index:10; font-family:var(--ffd); font-size:.52rem; letter-spacing:.12em; color:rgba(var(--accent-rgb),.28); pointer-events:none; line-height:1.9; animation:fadeIn 1.5s ease 2.5s both; }
+    [data-theme="light"] #hud { color:rgba(var(--accent-rgb),.35); }
+
+    /* ── Scroll hint ─────────────────────────────────────────── */
+    .scroll-hint {
+      position:absolute; bottom:1.75rem; left:50%; transform:translateX(-50%);
+      display:flex; flex-direction:column; align-items:center; gap:.5rem;
+      opacity:0; pointer-events:none;
+    }
+    @media(min-width:900px) { .scroll-hint { grid-column:1; } }
+    .sline { width:1px; height:44px; background:linear-gradient(to bottom,transparent,var(--accent),transparent); animation:linePulse 2.6s ease-in-out infinite; }
+    .slbl { font-family:var(--ffd); font-size:.52rem; letter-spacing:.28em; text-transform:uppercase; color:var(--lo); }
+
+    /* ==============================================================
+       SECTIONS — Princípios aplicados nas seções abaixo
+       ============================================================== */
+
+    /* Container de seção padrão */
+    .section {
+      position:relative; z-index:2;
+      background:var(--bg);
+      border-top:1px solid rgba(var(--accent-rgb),.08);
+      padding:var(--sp-lg) var(--sp-md);
+    }
+    .section:nth-child(even) { background:var(--bg-2); }
+    @media(min-width:900px) { .section { padding:var(--sp-lg) var(--sp-xl); } }
+
+    .section-inner { max-width:1200px; margin:0 auto; }
+
+    /* Cabeçalho de seção — Princípio 1: REPETIÇÃO (mesmo tratamento em todas) */
+    .section-header { margin-bottom:var(--sp-lg); }
+    .section-cat {
+      display:inline-flex; align-items:center; gap:.5rem;
+      font-size:.55rem; letter-spacing:.24em; text-transform:uppercase;
+      color:var(--accent); margin-bottom:.75rem;
+    }
+    .section-cat::before { content:''; width:20px; height:1px; background:currentColor; }
+    .section-title {
+      font-family:var(--ffd); font-weight:700;
+      font-size:clamp(1.6rem, 3.5vw, 3rem);
+      letter-spacing:-.03em; line-height:1.05; color:var(--hi);
+    }
+
+    /* ==============================================================
+       CARDS — Serviços
+       Princípio 1: REPETIÇÃO (mesma estrutura de card)
+       Princípio 2: AGRUPAMENTO (cada card agrupa ícone+título+texto)
+       Princípio 4: ALINHAMENTO (grid de 3 colunas)
+       ============================================================== */
+    .cards-grid {
+      display:grid;
+      grid-template-columns:1fr;
+      gap:1px;  /* gap de 1px com background da section cria divisor sutil */
+    }
+    @media(min-width:600px) { .cards-grid { grid-template-columns:repeat(2,1fr); } }
+    @media(min-width:900px) { .cards-grid { grid-template-columns:repeat(3,1fr); } }
+
+    .card {
+      padding:var(--sp-md) var(--sp-md) var(--sp-lg);
+      background:var(--bg-up);
+      display:flex; flex-direction:column; gap:.75rem;
+      transition:background .3s;
+    }
+    .card:hover { background:rgba(var(--accent-rgb),.04); }
+
+    /* Número do card — Princípio 3: CONTRASTE (grande, ciano) */
+    .card-num {
+      font-family:var(--ffd); font-weight:800;
+      font-size:clamp(2.5rem,5vw,4.5rem);
+      line-height:1; letter-spacing:-.05em;
+      color:rgba(var(--accent-rgb),.15);
+      transition:color .3s;
+    }
+    .card:hover .card-num { color:rgba(var(--accent-rgb),.30); }
+
+    .card-title { font-family:var(--ffd); font-weight:700; font-size:clamp(1rem,1.8vw,1.3rem); letter-spacing:-.02em; color:var(--hi); }
+    .card-body  { font-size:clamp(.75rem,1.1vw,.85rem); font-weight:300; line-height:1.75; color:var(--mid); flex:1; }
+
+    /* Tag tecnologia — Princípio 1: REPETIÇÃO (mesmo estilo em todos) */
+    .card-tags { display:flex; flex-wrap:wrap; gap:.35rem; margin-top:auto; padding-top:1rem; }
+    .ctag {
+      font-size:.55rem; letter-spacing:.1em; text-transform:uppercase;
+      padding:.2rem .55rem; background:rgba(var(--accent-rgb),.06);
+      border:1px solid rgba(var(--accent-rgb),.15); color:var(--accent);
+    }
+
+    /* ==============================================================
+       STATS — Princípio 4: ALINHAMENTO (números na mesma linha base)
+               Princípio 3: CONTRASTE (número grande vs label pequeno)
+       ============================================================== */
+    .stats-strip {
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:1px;
+      border-top:1px solid rgba(var(--accent-rgb),.08);
+      border-bottom:1px solid rgba(var(--accent-rgb),.08);
+    }
+    @media(min-width:600px) { .stats-strip { grid-template-columns:repeat(4,1fr); } }
+
+    .stat-item {
+      padding:var(--sp-md);
+      background:var(--bg-up);
+      display:flex; flex-direction:column; align-items:flex-start; gap:.35rem;
+    }
+    .stat-n {
+      font-family:var(--ffd); font-weight:800;
+      font-size:clamp(2rem,4.5vw,3.5rem);
+      letter-spacing:-.04em; line-height:1; color:var(--hi);
+    }
+    .stat-n span { color:var(--accent); }
+    .stat-l { font-size:.6rem; letter-spacing:.16em; text-transform:uppercase; color:var(--mid); }
+
+    /* ==============================================================
+       MENU MOBILE
+       ============================================================== */
+    #mmenu { position:fixed; top:0; right:-100%; width:min(340px,100%); height:100%; background:var(--bg-up); backdrop-filter:blur(40px); border-left:1px solid var(--bdr); z-index:300; display:flex; flex-direction:column; padding:5rem var(--sp-md) var(--sp-md); transition:right .48s var(--ease); }
+    #mmenu.open { right:0; }
+    .mcls { position:absolute; top:1.25rem; right:1.5rem; background:none; border:none; cursor:pointer; color:var(--hi); }
+    .mlnk { font-family:var(--ffd); font-size:1.85rem; font-weight:700; letter-spacing:-.03em; color:var(--hi); text-decoration:none; padding:.8rem 0; border-bottom:1px solid var(--bdr); display:block; transition:color .3s,padding-left .3s; }
+    .mlnk:hover { color:var(--accent); padding-left:.4rem; }
+    .mact { margin-top:auto; display:flex; gap:.5rem; flex-wrap:wrap; padding-top:var(--sp-md); }
+    #movl { position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:290; opacity:0; pointer-events:none; transition:opacity .4s; }
+    #movl.open { opacity:1; pointer-events:all; }
+
+    /* ==============================================================
+       INTRO VIDEO PRELOADER
+       ============================================================== */
+    #intro-video-wrapper {
+      position:fixed; inset:0; z-index:99999;
+      background:#070711; /* Cor de fundo fixa (dark) igual ao canvas */
+      display:flex; align-items:center; justify-content:center;
+      transition:opacity .6s var(--ease);
+    }
+    #intro-video {
+      width:100%; height:100%; object-fit:cover; pointer-events:none;
+    }
+    #skip-video {
+      position:absolute; bottom:var(--sp-md); right:var(--sp-md); z-index:100000;
+      font-family:var(--ffd); font-size:.65rem; font-weight:700; letter-spacing:.15em;
+      text-transform:uppercase; color:rgba(255,255,255,.6);
+      background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2); border-radius:4px;
+      padding:.6rem 1.2rem; cursor:pointer; pointer-events:all;
+      transition:background .3s, color .3s, border-color .3s;
+    }
+    #skip-video:hover {
+      background:rgba(255,255,255,.2); color:#fff; border-color:rgba(255,255,255,.4);
+    }
+
+    /* ==============================================================
+       KEYFRAMES
+       ============================================================== */
+    @keyframes dotPulse   { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.65;transform:scale(1.4)} }
+    @keyframes linePulse  { 0%,100%{opacity:.22;transform:scaleY(1)} 50%{opacity:1;transform:scaleY(1.1)} }
+    @keyframes fadeIn     { from{opacity:0} to{opacity:1} }
+    @keyframes scanAnim   { from{background-position:0 0} to{background-position:0 100px} }
+    @keyframes cardFadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes badgeIn    { from{opacity:0;transform:translateY(20px) scale(.92)} to{opacity:1;transform:translateY(0) scale(1)} }
+    @keyframes glowPulse  { 0%,100%{box-shadow:0 0 0 0 rgba(var(--accent-rgb),.0)} 50%{box-shadow:0 0 18px 4px rgba(var(--accent-rgb),.18)} }
+    @keyframes scanH      { from{transform:translateX(-100%)} to{transform:translateX(200%)} }
+    @keyframes countUp    { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+    /* ==============================================================
+       CERTIFICADOS — Seção completa
+       Princípio 1: REPETIÇÃO (badge-card tem exatamente a mesma estrutura)
+       Princípio 2: AGRUPAMENTO (sidebar fixa | grid scrollável)
+       Princípio 3: CONTRASTE (número 61 enorme vs label pequena)
+       Princípio 4: ALINHAMENTO (tudo na grade, nada solto)
+       ============================================================== */
+
+    /* Driver de scroll — cria espaço para a animação acontecer */
+    /* Remover scroll-jacking: usar layout normal de seção */
+    #certs-driver { position:relative; z-index:2; background:var(--bg-2); }
+    #certs-sticky {
+      display:grid;
+      grid-template-columns:1fr;
+      border-top:1px solid rgba(var(--accent-rgb),.08);
+    }
+    @media(min-width:900px) {
+      #certs-sticky { grid-template-columns:280px 1fr; }
+    }
+    @media(min-width:1200px) { #certs-sticky { grid-template-columns:340px 1fr; } }
+
+    /* ── Coluna esquerda: contador + info ────────────────────── */
+    .certs-sidebar {
+      display:flex; flex-direction:column;
+      padding:5rem 2rem 2rem;
+      border-bottom:1px solid rgba(var(--accent-rgb),.08);
+    }
+    @media(min-width:900px) {
+      .certs-sidebar {
+        padding:4rem 2.5rem 4rem 5rem;
+        border-bottom:none;
+        border-right:1px solid rgba(var(--accent-rgb),.08);
+      }
+    }
+    @media(min-width:1200px) { .certs-sidebar { padding:4rem 2.5rem 4rem 7rem; } }
+
+    /* Rótulo da seção */
+    .certs-eyebrow {
+      display:inline-flex; align-items:center; gap:.5rem;
+      font-size:.54rem; letter-spacing:.24em; text-transform:uppercase;
+      color:var(--accent); margin-bottom:1rem;
+    }
+    .certs-eyebrow::before { content:''; width:18px; height:1px; background:currentColor; }
+
+    /* Número contador — Princípio 3: CONTRASTE máximo */
+    .certs-counter {
+      display:flex; align-items:baseline; gap:.15em;
+      line-height:1;
+    }
+    .counter-num {
+      font-family:var(--ffd); font-weight:800;
+      font-size:clamp(4.5rem, 12vw, 8rem);
+      letter-spacing:-.05em;
+      color:var(--hi);
+      /* Cada dígito recebe o glow individualmente via JS */
+      transition:color .3s;
+    }
+    .counter-suffix {
+      font-family:var(--ffd); font-weight:800;
+      font-size:clamp(1.2rem, 3vw, 2rem);
+      color:var(--accent);
+    }
+
+    .certs-label {
+      font-family:var(--ffd); font-size:clamp(1rem, 2.5vw, 1.6rem);
+      font-weight:700; letter-spacing:-.02em;
+      color:var(--mid); margin-top:.3rem;
+      margin-bottom:1.5rem;
+    }
+    .certs-label em { color:var(--accent); font-style:normal; }
+
+    .certs-sub {
+      font-size:.78rem; font-weight:300; line-height:1.75;
+      color:var(--lo); max-width:240px;
+    }
+
+    /* Filtros — Princípio 1: REPETIÇÃO (mesmo pill) */
+    .filter-list { display:flex; flex-wrap:wrap; gap:.4rem; margin-top:.5rem; margin-bottom:1.5rem; }
+    .filter-pill {
+      font-size:.56rem; letter-spacing:.1em; text-transform:uppercase;
+      padding:.2rem .6rem;
+      background:rgba(var(--accent-rgb),.06);
+      border:1px solid rgba(var(--accent-rgb),.12);
+      color:var(--mid);
+      transition:background .3s, border-color .3s, color .3s;
+      cursor:pointer;
+    }
+    .filter-pill:hover,
+    .filter-pill.active {
+      background:rgba(var(--accent-rgb),.12);
+      border-color:rgba(var(--accent-rgb),.35);
+      color:var(--accent);
+    }
+
+    /* Progresso de scroll — linha fina no bottom da sidebar */
+    .certs-progress {
+      position:absolute; bottom:0; left:0;
+      width:0; height:2px; /* JS atualiza width */
+      background:linear-gradient(to right,transparent,var(--accent));
+      transition:width .1s;
+    }
+    @media(min-width:900px) {
+      .certs-progress { top:0; bottom:0; right:0; left:auto; width:2px; height:0; }
+    }
+
+    /* ── Coluna direita: grade de badges ─────────────────────── */
+    .certs-main {
+      padding:2rem 1.5rem;
+    }
+    @media(min-width:900px) { .certs-main { padding:4rem 4rem 4rem 2.5rem; } }
+    @media(min-width:1200px) { .certs-main { padding:4rem 6rem 4rem 3rem; } }
+
+    /* Título interno do grid */
+    .certs-grid-title {
+      font-family:var(--ffd); font-weight:700;
+      font-size:clamp(.9rem, 1.8vw, 1.2rem);
+      letter-spacing:-.01em; color:var(--hi);
+      margin-bottom:1.5rem; padding-bottom:.75rem;
+      border-bottom:1px solid var(--bdr);
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .grid-count {
+      font-size:.6rem; letter-spacing:.12em; text-transform:uppercase;
+      color:var(--accent); font-family:var(--ffd); font-weight:400;
+    }
+
+    /* Grade de badge cards */
+    .badges-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fill, minmax(108px, 1fr));
+      gap:12px;
+      margin-bottom:2.5rem;
+    }
+    @media(min-width:600px) { .badges-grid { grid-template-columns:repeat(auto-fill, minmax(120px, 1fr)); gap:16px; } }
+
+    /* Badge card individual — Princípio 2: AGRUPAMENTO (imagem+nome sempre juntos) */
+    .badge-card {
+      position:relative;
+      background:var(--bg-up);
+      border:1px solid var(--bdr);
+      padding:14px 10px 12px;
+      text-align:center;
+      display:flex; flex-direction:column; align-items:center; gap:8px;
+      text-decoration:none; color:inherit;
+      /* Oculto inicialmente — JS revela com stagger */
+      opacity:0; transform:translateY(18px) scale(.94);
+      transition:border-color .35s, transform .35s, box-shadow .35s, opacity .35s;
+    }
+    .badge-card.revealed {
+      opacity:1; transform:translateY(0) scale(1);
+    }
+    .badge-card:hover {
+      border-color:rgba(var(--accent-rgb),.6);
+      transform:translateY(-5px) scale(1.03);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      animation: badgeMorphGlow 2s ease-in-out infinite alternate;
+      z-index: 10;
+    }
+
+    @keyframes badgeMorphGlow {
+      0% { box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.2), 0 0 20px rgba(var(--accent-rgb), 0.1); }
+      100% { box-shadow: 0 0 25px rgba(var(--accent-rgb), 0.6), 0 0 45px rgba(var(--accent-rgb), 0.4), inset 0 0 10px rgba(var(--accent-rgb), 0.2); }
+    }
+
+    /* Scan line effect no hover */
+    .badge-card::after {
+      content:''; position:absolute; inset:0;
+      background:linear-gradient(90deg,transparent 0%,rgba(var(--accent-rgb),.06) 50%,transparent 100%);
+      transform:translateX(-100%);
+      pointer-events:none;
+      transition:none;
+    }
+    .badge-card:hover::after { animation:scanH .6s ease forwards; }
+
+    /* Imagem do badge */
+    .badge-img {
+      width:60px; height:60px;
+      object-fit:contain;
+      border-radius:8px;
+      flex-shrink:0;
+    }
+
+    /* Placeholder quando a imagem não carrega */
+    .badge-placeholder {
+      width:60px; height:60px;
+      border-radius:8px;
+      background:rgba(var(--accent-rgb),.04);
+      border:1px dashed rgba(var(--accent-rgb),.2);
+      display:flex; align-items:center; justify-content:center;
+      font-size:1.5rem; flex-shrink:0;
+    }
+
+    .badge-name {
+      font-family:var(--ffd); font-size:.58rem; font-weight:600;
+      letter-spacing:.04em; line-height:1.4;
+      color:var(--mid); text-align:center;
+    }
+
+    /* Dot de status: real vs placeholder */
+    .badge-status {
+      position:absolute; top:8px; right:8px;
+      width:5px; height:5px; border-radius:50%;
+      background:rgba(var(--accent-rgb),.5);
+    }
+    .badge-card.is-placeholder .badge-status { background:var(--bdr); }
+
+    /* ── Grade de certificados (por plataforma/competência) ────── */
+    .certs-list-title {
+      font-size:.58rem; letter-spacing:.18em; text-transform:uppercase;
+      color:var(--accent); margin-bottom:1rem; margin-top:2rem;
+      display:flex; align-items:center; gap:.5rem;
+    }
+    .certs-list-title::before { content:''; width:16px; height:1px; background:currentColor; }
+
+    .cert-rows { display:flex; flex-direction:column; gap:8px; }
+
+    /* Linha de certificado — Princípio 4: ALINHAMENTO */
+    .cert-row {
+      display:grid;
+      grid-template-columns:auto 1fr auto auto;
+      align-items:center;
+      gap:.75rem;
+      padding:10px 14px;
+      background:var(--bg-up); border:1px solid var(--bdr);
+      opacity:0; transform:translateX(-12px);
+      transition:border-color .3s, background .3s, opacity .4s, transform .4s;
+    }
+    .cert-row.revealed {
+      opacity:1; transform:translateX(0);
+    }
+    .cert-row:hover { border-color:rgba(var(--accent-rgb),.25); background:rgba(var(--accent-rgb),.03); }
+
+    .cert-plat-dot {
+      width:6px; height:6px; border-radius:50%;
+      flex-shrink:0;
+    }
+    .cert-row-name {
+      font-size:.78rem; font-weight:400; color:var(--mid); line-height:1.4;
+    }
+    .cert-row-name strong { color:var(--hi); font-weight:500; display:block; }
+    .cert-row-hours {
+      font-family:var(--ffd); font-size:.6rem; font-weight:700;
+      color:var(--accent); white-space:nowrap; flex-shrink:0;
+    }
+
+    /* ── Indicador de scroll progress (barra lateral) ─────────── */
+    .cert-row-hours {
+      font-family:var(--ffd); font-size:.6rem; font-weight:700;
+      color:var(--accent); white-space:nowrap; flex-shrink:0;
+    }
+
+    .cert-btn-view {
+      font-family:var(--ffd); font-size:.55rem; font-weight:700;
+      letter-spacing:.1em; text-transform:uppercase; text-decoration:none;
+      color:#00ff88; padding:.25rem .6rem; border:1px solid rgba(0,255,136,.3);
+      border-radius:2px; transition:all .3s ease;
+      background:rgba(0,255,136,.05);
+      cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .cert-btn-view:hover {
+      background:rgba(0,255,136,.15);
+      border-color:#00ff88;
+      box-shadow:0 0 10px rgba(0,255,136,.4);
+      color:#fff;
+      transform:scale(1.05);
+    }
+
+    /* Accordion Certificados: Mostra no máx 5 itens sem espansão */
+    .cert-rows:not(.expanded) .cert-row:nth-child(n+6) {
+      display: none !important;
+    }
+
+    /* ==============================================================
+       EFEITOS INDEX_1.HTML (Noise, Sheen, Tilt, etc)
+       ============================================================== */
+    /* ───── NOISE ───── */
+    .global-noise {
+      position: fixed; inset: -50%; z-index: 100; pointer-events: none; opacity: .03; mix-blend-mode: overlay;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+      animation: noise-drift 8s steps(2) infinite;
+    }
+    @keyframes noise-drift {
+      0% { transform: translate(0,0); } 10% { transform: translate(-1%,-1%); }
+      20% { transform: translate(1%,0); } 30% { transform: translate(0,1%); }
+      40% { transform: translate(-1%,1%); } 50% { transform: translate(1%,-1%); }
+      60% { transform: translate(0,0); } 100% { transform: translate(0,0); }
+    }
+
+    /* ── FOTO SOBRE ── */
+    .hero-img-strip {
+      width: 100%; height: 100%; min-height: 400px; position: relative; overflow: hidden;
+      clip-path: inset(0% 0 0 0); /* will animate */
+      border-radius: 16px;
+    }
+    .hero-img-strip img {
+      width: 100%; height: 100%; object-fit: cover;
+      filter: grayscale(80%) contrast(1.1) brightness(0.8);
+      transform: scale(1.05);
+      transition: transform 1.5s ease, filter .8s ease;
+    }
+    .hero-img-strip:hover img {
+      transform: scale(1);
+      filter: grayscale(0%) contrast(1) brightness(1);
+    }
+    .hero-img-overlay {
+      position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(to right, var(--bg) 0%, transparent 40%),
+                  linear-gradient(to left, var(--bg) 0%, transparent 100%),
+                  linear-gradient(to top, var(--bg) 0%, transparent 30%);
+    }
+    .hero-img-border {
+      position: absolute; inset: 0; pointer-events: none;
+      border: 1px solid rgba(var(--accent-rgb),.15); border-radius:16px;
+    }
+
+    /* ── CARDS PROJETO (SRV-CARD) ── */
+    .srv-card {
+      position: relative; overflow: hidden; cursor: none;
+      opacity: 1; transform-style: preserve-3d; border-radius:16px;
+      background:var(--bg-up); border:1px solid var(--bdr);
+    }
+    .srv-card-inner {
+      position: relative; width: 100%; transition: transform .08s linear;
+      transform-style: preserve-3d; height: 100%; display: flex; flex-direction: column;
+    }
+    .srv-img { position: relative; width: 100%; height:280px; overflow: hidden; border-bottom:1px solid var(--bdr); }
+    .srv-img img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      transition: transform .8s cubic-bezier(.25,1,.5,1), filter .5s ease;
+      filter: grayscale(30%) brightness(.85); transform: scale(1.05);
+    }
+    .srv-card:hover .srv-img img { filter: grayscale(0%) brightness(.9); transform: scale(1.12); }
+    .srv-sheen {
+      position: absolute; inset: 0; pointer-events: none; z-index: 3;
+      background: radial-gradient(circle at center, rgba(var(--accent-rgb),.1) 0%, transparent 70%);
+      opacity: 0; transition: opacity .4s ease;
+    }
+    .srv-card:hover .srv-sheen { opacity: 1; }
+    .srv-img-overlay {
+      position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(to top, rgba(0,0,0,.8) 0%, rgba(0,0,0,.1) 50%, transparent 100%); z-index: 1;
+    }
+    .srv-tag {
+      position: absolute; top: 20px; left: 20px; z-index: 4;
+      font-family: var(--ffd); font-size: 9px; letter-spacing: .2em;
+      color: var(--accent); text-transform: uppercase;
+      background: rgba(4,4,6,.7); border: 1px solid rgba(var(--accent-rgb),.2);
+      padding: 6px 12px; backdrop-filter: blur(8px);
+    }
+    .srv-content { position: absolute; bottom: 0; left: 0; right: 0; z-index: 2; padding: 28px; }
+    .srv-service-title { font-family: var(--ffd); font-weight:800; font-size: 1.4rem; color: #fff; margin-bottom: 12px; transform: translateY(8px); transition: transform .4s ease; }
+    .srv-card:hover .srv-service-title { transform: translateY(0); }
+    .srv-service-desc {
+      font-size: .85rem; line-height: 1.5; color: rgba(255,255,255, .7);
+      max-height: 0; overflow: hidden; opacity: 0;
+      transition: max-height .5s cubic-bezier(.16,1,.3,1), opacity .4s ease;
+    }
+    .srv-card:hover .srv-service-desc { max-height: 100px; opacity: 1; margin-bottom: 1rem; }
+    .srv-card-glow {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(to right, transparent, var(--accent), transparent);
+      transform: scaleX(0); transition: transform .5s cubic-bezier(.16,1,.3,1); z-index: 5;
+    }
+    .srv-card:hover .srv-card-glow { transform: scaleX(1); }
+
+    /* ── SCROLL PROCESS TIMELINE ── */
+    .proc-line {
+      position:absolute; top:0; bottom:0; left:24px; width:2px; background: rgba(255,255,255,0.05); z-index:0;
+    }
+    .proc-line-fill {
+      position:absolute; top:0; left:24px; width:2px; background: var(--accent); z-index:0;
+      box-shadow: 0 0 10px var(--accent-glow);
+      transition: height 0.6s cubic-bezier(0.2, 1, 0.3, 1);
+      height: 0%; max-height: 100%;
+    }
+    .proc-step {
+      display:flex; gap:2rem; transition: transform 0.4s ease, opacity 0.5s ease; opacity: 0.25;
+    }
+    .proc-step.active {
+      opacity: 1; transform: translateX(5px);
+    }
+    .proc-node {
+      width:50px; height:50px; border-radius:50%; background:var(--bg); border:2px solid rgba(255,255,255,0.15); 
+      display:flex; align-items:center; justify-content:center; flex-shrink:0; 
+      transition: all 0.5s ease; z-index: 2; position:relative;
+    }
+    .proc-node span { font-family:var(--ffd); font-size:1rem; color:var(--lo); transition: color 0.5s ease; }
+    .proc-step.active .proc-node {
+      border-color: var(--accent); background: var(--accent); box-shadow:0 0 15px var(--accent-glow);
+    }
+    .proc-step.active .proc-node span { color: var(--bg); font-weight: 800; }
+    .proc-title { font-size:1.2rem; color:var(--hi); margin-bottom:.5rem; transition: color 0.5s ease, text-shadow 0.5s ease; }
+    .proc-step.active .proc-title { color: var(--accent); text-shadow: 0 0 12px rgba(var(--accent-rgb),.4); }
+
+  
+
+        @media(min-width:900px) {
+          #sobre .section-inner { grid-template-columns: minmax(300px, 4.5fr) 5.5fr !important; }
+        }
+      
+
+        .inp { width:100%; padding:14px 16px; border:1px solid var(--bdr); border-radius:8px; background:rgba(255,255,255,0.02); color:var(--hi); font-family:var(--font); margin-bottom:14px; transition:all .25s; resize:vertical; }
+        .inp:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(var(--accent-rgb),.15); background:rgba(var(--accent-rgb),.02); }
+        .btn-wizard:disabled { opacity: 0.3; pointer-events: none; }
+        .review-row { border-bottom: 1px solid var(--bdr); padding:8px 0; }
+        .review-row:last-child { border-bottom: none; }
+        .review-label { font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--accent); }
+        .review-value { font-size:14px; color:var(--hi); margin-top:2px; }
+      
